@@ -38,3 +38,6 @@ jobs:
           path: |
             public/tests/junit.xml
             public/tests/report.html
+            test/actual/
+            test/diff/
+            test/expected/
