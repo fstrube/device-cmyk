@@ -34,9 +34,11 @@ jobs:
         run: npm start & sleep 5 && npm run test:ci
 
       - name: Generate test report
+        if: always()
         run: npx junit-viewer --results=public/tests/junit.xml --save=public/tests/report.html
 
       - name: Gather test reports
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: Test Reports
