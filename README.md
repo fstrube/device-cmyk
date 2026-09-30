@@ -21,9 +21,9 @@ Without an ICC profile, cyan, magenta, yellow, and black are converted with a si
 The easiest way to use polyfill is through a CDN:
 
 ```html
-<script src="https://unpkg.com/device-cmyk@0.0.1-alpha"></script>
+<script src="https://unpkg.com/device-cmyk@0.0.1-alpha/dist/device-cmyk.polyfill.js"></script>
 <!-- or -->
-<script src="https://cdn.jsdelivr.net/npm/device-cmyk@0.0.1-alpha"></script>
+<script src="https://cdn.jsdelivr.net/npm/device-cmyk@0.0.1-alpha/dist/device-cmyk.polyfill.js"></script>
 
 ```
 

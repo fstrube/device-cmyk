@@ -10,14 +10,12 @@
   "exports": {
     ".": {
       "browser": "./dist/device-cmyk.polyfill.js",
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./package.json": "./package.json"
   },
-  "module": "./dist/index.mjs",
-  "files": [
-    "dist"
-  ],
+  "module": "./dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist && tsc src/index.ts --noEmit",
     "build": "tsup && npm run build:polyfill",
@@ -25,6 +23,9 @@
     "start": "node --import tsx server.ts",
     "test": "node --test --import tsx test/*.test.ts",
     "test:ci": "node --test --import tsx --test-reporter=junit --test-reporter-destination=public/tests/junit.xml --test-reporter=spec --test-reporter-destination=stdout test/*.test.ts",
+    "test:link": "cd test/link ; npm link device-cmyk ../.. ; node --test index.test.js",
+    "test:package": "cd build && npm pack .. ; cd ../test/package ; npm install ../../build/device-cmyk-*.tgz && node --test index.test.js",
+    "posttest:package": "cd test/package ; npm remove device-cmyk",
     "test:snapshot": "SNAPSHOT=1 node --import tsx --test test/index.test.ts"
   },
   "devDependencies": {
