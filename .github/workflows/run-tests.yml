@@ -17,27 +17,21 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
       - name: Cache Node modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ./node_modules
           key: ${{ hashFiles('./package-lock.json') }}
 
-      - name: Cache Playwright
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('./package-lock.json') }}
-
       - name: Initialize Docker Compose
-        uses: docker/setup-compose-action@v1
+        uses: docker/setup-compose-action@v2
 
       - name: Build Docker images
         run: docker compose up -d --wait
