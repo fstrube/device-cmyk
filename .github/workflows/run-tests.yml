@@ -1,3 +1,4 @@
+name: Test Suite
 on:
   push:
     branches:
@@ -14,7 +15,7 @@ on:
 
 jobs:
   test:
-    name: Test Suite
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
