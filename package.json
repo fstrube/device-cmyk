@@ -21,7 +21,7 @@
   "scripts": {
     "prebuild": "rm -rf dist && tsc src/index.ts --noEmit",
     "build": "tsup && npm run build:polyfill",
-    "build:polyfill": "esbuild src/polyfill.ts --bundle --format=iife --platform=browser --target=es2022 --outfile=dist/device-cmyk.polyfill.js",
+    "build:polyfill": "esbuild src/polyfill.ts --bundle --format=iife --platform=browser --target=es2022 --sourcemap --outfile=dist/device-cmyk.polyfill.js",
     "start": "node --import tsx server.ts",
     "test": "node --test --import tsx test/*.test.ts",
     "test:ci": "node --test --import tsx --test-reporter=junit --test-reporter-destination=public/tests/junit.xml --test-reporter=spec --test-reporter-destination=stdout test/*.test.ts",

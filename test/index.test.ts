@@ -93,7 +93,7 @@ declare global {
       await page.evaluate(async () => {
         const profile = await ICCProfile.open('/profiles/USSheetfedCoated.icc');
 
-        DeviceCMYK.restore();
+        await DeviceCMYK.restore();
 
         await DeviceCMYK.init(profile);
       });

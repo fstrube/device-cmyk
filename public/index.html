@@ -152,11 +152,11 @@
         const javascriptSquare = document.getElementById('javascript-square');
         const setPropertySquare = document.getElementById('set-property-square');
 
-        initButton.addEventListener('click', async () => {
+        initButton?.addEventListener('click', async () => {
             await DeviceCMYK.init();
         });
 
-        profileSelect.addEventListener('change', async (event) => {
+        profileSelect?.addEventListener('change', async (event) => {
             DeviceCMYK.restore();
 
             if (event.target.value === '') {
@@ -168,19 +168,19 @@
             DeviceCMYK.init(profile);
         });
 
-        restoreButton.addEventListener('click', () => {
+        restoreButton?.addEventListener('click', () => {
             DeviceCMYK.restore();
         });
 
-        toggleButton.addEventListener('click', () => {
+        toggleButton?.addEventListener('click', () => {
             graySquare.setAttribute('style', 'width: 100px; height: 100px; background-color: device-cmyk(0.25, 0.25, 0.25, 0.25);');
         });
 
-        javascriptSquare.addEventListener('click', () => {
+        javascriptSquare?.addEventListener('click', () => {
             javascriptSquare.style.backgroundColor = 'device-cmyk(0.25, 0.25, 0.25, 0.25)';
         });
 
-        setPropertySquare.addEventListener('click', () => {
+        setPropertySquare?.addEventListener('click', () => {
             setPropertySquare.style.setProperty('background-color', 'device-cmyk(0.25, 0.25, 0.25, 0.25)');
         });
     </script>
