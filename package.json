@@ -19,13 +19,25 @@
   "scripts": {
     "prebuild": "rm -rf dist && tsc src/index.ts --noEmit",
     "build": "tsup && npm run build:polyfill",
+
     "build:polyfill": "esbuild src/polyfill.ts --bundle --format=iife --platform=browser --target=es2022 --sourcemap --outfile=dist/device-cmyk.polyfill.js",
+
     "start": "node --import tsx server.ts",
+
     "test": "node --test --import tsx test/*.test.ts",
-    "test:ci": "node --test --import tsx --test-reporter=junit --test-reporter-destination=public/tests/junit.xml --test-reporter=spec --test-reporter-destination=stdout test/*.test.ts",
-    "test:link": "cd test/link ; npm link device-cmyk ../.. ; node --test index.test.js",
-    "test:package": "cd build && npm pack .. ; cd ../test/package ; npm install ../../build/device-cmyk-*.tgz && node --test index.test.js",
-    "posttest:package": "cd test/package ; npm remove device-cmyk",
+
+    "test:ci": "npm run test:main ; npm run test:link ; npm run test:package",
+
+    "test:main": "node --test --import tsx --test-reporter=junit --test-reporter-destination=public/tests/junit.xml --test-reporter=spec --test-reporter-destination=stdout test/*.test.ts",
+
+    "pretest:link": "npm run build && cd test/link && npm remove device-cmyk ; npm link device-cmyk ../..",
+    "test:link": "cd test/link ; node --test --test-reporter=junit --test-reporter-destination=../../public/tests/junit.link.xml --test-reporter=spec --test-reporter-destination=stdout index.test.js",
+    "posttest:link": "cd test/link && npm remove device-cmyk",
+
+    "pretest:package": "npm run build && cd test/package && npm remove device-cmyk ; npm pack ../.. ; npm install device-cmyk-*.tgz",
+    "test:package": "cd test/package && node --test --test-reporter=junit --test-reporter-destination=../../public/tests/junit.package.xml --test-reporter=spec --test-reporter-destination=stdout index.test.js",
+    "posttest:package": "cd test/package ; rm device-cmyk-*.tgz ; npm remove device-cmyk",
+
     "test:snapshot": "SNAPSHOT=1 node --import tsx --test test/index.test.ts"
   },
   "devDependencies": {
