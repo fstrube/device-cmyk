@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Start server and run tests
-        run: npm start & sleep 5 && npm test:ci
+        run: npm start & sleep 5 && npm run test:ci
 
       - name: Generate test report
         run: npx junit-viewer --results=public/tests/junit.xml --save=public/tests/report.html
