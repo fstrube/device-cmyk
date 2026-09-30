@@ -1,5 +1,6 @@
 .docker/
 .github/
+dist/*.map
 docker-compose.yml
 CLAUDE.md
 profiles/
