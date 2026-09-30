@@ -43,8 +43,7 @@ jobs:
         with:
           name: Test Reports
           path: |
-            public/tests/junit.xml
-            public/tests/report.html
+            public/tests/
             test/actual/
             test/diffs/
             test/expected/
