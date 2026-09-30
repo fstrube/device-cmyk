@@ -2,6 +2,10 @@
   "name": "device-cmyk",
   "version": "0.0.1-alpha",
   "description": "Runtime polyfill for the CSS device-cmyk() color function.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fstrube/device-cmyk.git"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
