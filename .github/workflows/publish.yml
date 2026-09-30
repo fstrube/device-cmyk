@@ -1,3 +1,4 @@
+name: Publish to NPM
 on:
   workflow_dispatch
 jobs:
@@ -15,7 +16,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies and build
-        run: npm ci && npm build
+        run: npm ci && npm run build
 
       - name: Publish to npm
         run: npm publish --access public
