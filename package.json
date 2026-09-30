@@ -23,7 +23,8 @@
     "build": "tsup && npm run build:polyfill",
     "build:polyfill": "esbuild src/polyfill.ts --bundle --format=iife --platform=browser --target=es2022 --outfile=dist/device-cmyk.polyfill.js",
     "start": "node --import tsx server.ts",
-    "test": "node --import tsx --test test/*.test.ts",
+    "test": "node --test --import tsx test/*.test.ts",
+    "test:ci": "node --test --import tsx --test-reporter=junit --test-reporter-destination=public/tests/junit.xml --test-reporter=spec --test-reporter-destination=stdout test/*.test.ts",
     "test:snapshot": "SNAPSHOT=1 node --import tsx --test test/index.test.ts"
   },
   "devDependencies": {
