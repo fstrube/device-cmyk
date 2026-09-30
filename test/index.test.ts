@@ -1,82 +1,108 @@
-import test, { after, before } from 'node:test';
-import { Browser, BrowserContext, chromium } from 'playwright';
+import test, { after, before, describe } from 'node:test';
+import { Browser, BrowserContext, firefox, chromium } from 'playwright';
 import { diff } from './utils';
 import DeviceCMYK from '../src/device-cmyk';
 import ICCProfile from '../src/icc-profile';
 
-let browser: Browser;
-let context: BrowserContext;
+declare global {
+  interface Window {
+    DeviceCMYK: typeof DeviceCMYK;
+  }
+}
 
-before(async () => {
-  browser = await chromium.launch({ headless: !process.argv.includes('--debug') });
+[chromium, firefox].forEach(async (browserType) => {
+  let browser: Browser;
+  let context: BrowserContext;
 
-  context = await browser.newContext();
-});
+  before(async () => {
+    browser = await browserType.launch({ headless: true });
 
-after(async () => {
-  await browser.close();
-});
-
-test('runs on load', async () => {
-  const page = await context.newPage();
-
-  await page.goto('http://localhost:3000');
-
-  await page.waitForFunction(() => DeviceCMYK !== undefined, null, { timeout: 100 });
-
-  await page.close();
-});
-
-test('transforms device-cmyk colors', async (t) => {
-  const page = await context.newPage();
-
-  await page.goto('http://localhost:3000');
-
-  await page.waitForFunction(() => DeviceCMYK !== undefined, null, { timeout: 100 });
-
-  const screenshot = await page.screenshot({ fullPage: true });
-
-  diff(t)(screenshot);
-
-  await page.close();
-});
-
-test('restores original styles', async (t) => {
-  const page = await context.newPage();
-
-  await page.goto('http://localhost:3000');
-
-  await page.waitForFunction(() => DeviceCMYK !== undefined, null, { timeout: 100 });
-
-  await page.evaluate(() => {
-    DeviceCMYK.restore();
+    context = await browser.newContext();
   });
 
-  const screenshot = await page.screenshot({ fullPage: true });
+  after(async () => {
+    await browser.close();
+  });
 
-  diff(t)(screenshot);
+  describe(`${browserType.name()}`, () => {
+    test('runs on load', async () => {
+      const page = await context.newPage();
 
-  await page.close();
-});
+      page.on('console', (message) => {
+        console.log(message.text());
+      });
 
-test('supports icc profiles', async (t) => {
-  const page = await context.newPage();
+      await page.goto('http://localhost:3000');
 
-  await page.goto('http://localhost:3000');
+      await page.waitForFunction(() => window.DeviceCMYK !== undefined, null, { timeout: 500 });
 
-  await page.waitForFunction(() => DeviceCMYK !== undefined, null, { timeout: 100 });
+      await page.close();
+    });
 
-  await page.evaluate(async () => {
-    const profile = await ICCProfile.open('/profiles/USSheetfedCoated.icc');
+    test('transforms device-cmyk colors', async (t) => {
+      const page = await context.newPage();
 
-    DeviceCMYK.restore();
+      page.on('console', (message) => {
+        console.log(message.text());
+      });
 
-    await DeviceCMYK.init(profile);
-  })
+      await page.goto('http://localhost:3000');
 
-  const screenshot = await page.screenshot({ fullPage: true });
+      await page.waitForFunction(() => window.DeviceCMYK !==undefined, null, { timeout: 500 });
 
-  diff(t)(screenshot);
+      const screenshot = await page.screenshot({ fullPage: true });
 
-  await page.close();
+      diff(`${browserType.name()}/${t.name}`)(screenshot);
+
+      await page.close();
+    });
+
+    test('restores original styles', async (t) => {
+      const page = await context.newPage();
+
+      page.on('console', (message) => {
+        console.log(message.text());
+      });
+
+      await page.goto('http://localhost:3000');
+
+      await page.waitForFunction(() => window.DeviceCMYK !== undefined, null, { timeout: 500 });
+
+      await page.evaluate(async () => {
+        await DeviceCMYK.restore();
+      });
+
+      const screenshot = await page.screenshot({ fullPage: true });
+
+      diff(`${browserType.name()}/${t.name}`)(screenshot);
+
+      await page.close();
+    });
+
+    test('supports icc profiles', async (t) => {
+      const page = await context.newPage();
+
+      page.on('console', (message) => {
+        console.log(message.text());
+      });
+
+      await page.goto('http://localhost:3000');
+
+      await page.waitForFunction(() => window.DeviceCMYK !== undefined, null, { timeout: 500 });
+
+      await page.evaluate(async () => {
+        const profile = await ICCProfile.open('/profiles/USSheetfedCoated.icc');
+
+        DeviceCMYK.restore();
+
+        await DeviceCMYK.init(profile);
+      });
+
+      const screenshot = await page.screenshot({ fullPage: true });
+
+      diff(`${browserType.name()}/${t.name}`)(screenshot);
+
+      await page.close();
+    });
+  });
 });

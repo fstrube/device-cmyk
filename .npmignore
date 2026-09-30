@@ -1,3 +1,6 @@
+.docker/
+.github/
+docker-compose.yml
 CLAUDE.md
 profiles/
 public/
@@ -5,3 +8,4 @@ server.ts
 src/
 test/
 tsconfig.json
+tsup.config.js
