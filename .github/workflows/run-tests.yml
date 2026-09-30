@@ -37,9 +37,10 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('./package-lock.json') }}
 
       - name: Initialize Docker Compose
-        uses: docker/compose-action@v4
-        with:
-          command: up -d --wait
+        uses: docker/setup-compose-action@v1
+
+      - name: Build Docker images
+        run: docker compose up -d --wait
 
       - name: Run test suite
         run: docker compose exec app npm run test:ci
