@@ -1,12 +1,6 @@
-.docker/
-.github/
+*
+!dist/*
 dist/*.map
-docker-compose.yml
-CLAUDE.md
-profiles/
-public/
-server.ts
-src/
-test/
-tsconfig.json
-tsup.config.js
+LICENSE
+package.json
+README.md

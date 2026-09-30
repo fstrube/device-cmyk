@@ -305,9 +305,11 @@ export default class DeviceCMYK {
       let g;
       let b;
 
-      r = Math.round(255 * (1 - c) * (1 - k));
-      g = Math.round(255 * (1 - m) * (1 - k));
-      b = Math.round(255 * (1 - y) * (1 - k));
+      const clamp = (value: number) => Math.max(0, Math.min(value, 255));
+
+      r = clamp(Math.round(255 * (1 - c) * (1 - k)));
+      g = clamp(Math.round(255 * (1 - m) * (1 - k)));
+      b = clamp(Math.round(255 * (1 - y) * (1 - k)));
 
       return [r, g, b];
     };
