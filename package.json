@@ -1,0 +1,43 @@
+{
+  "name": "device-cmyk",
+  "version": "0.0.1-alpha",
+  "description": "Runtime polyfill for the CSS device-cmyk() color function.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "browser": "./dist/device-cmyk.polyfill.js",
+  "exports": {
+    ".": {
+      "browser": "./dist/device-cmyk.polyfill.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "module": "./dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "rm -rf dist && tsc src/index.ts --noEmit",
+    "build": "tsup && npm run build:polyfill",
+    "build:polyfill": "esbuild src/polyfill.ts --bundle --format=iife --platform=browser --target=es2022 --outfile=dist/device-cmyk.polyfill.js",
+    "start": "node --import tsx server.ts",
+    "test": "node --import tsx --test test/*.test.ts",
+    "test:snapshot": "SNAPSHOT=1 node --import tsx --test test/index.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/pngjs": "^6.0.5",
+    "esbuild": "^0.25.10",
+    "pixelmatch": "^7.2.0",
+    "playwright": "^1.63.0",
+    "pngjs": "^7.0.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@adobe/css-tools": "^4.5.0"
+  }
+}

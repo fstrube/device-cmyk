@@ -1,0 +1,7 @@
+CLAUDE.md
+profiles/
+public/
+server.ts
+src/
+test/
+tsconfig.json
