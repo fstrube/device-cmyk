@@ -8,7 +8,9 @@
 
 <center>
 
-[![.github/workflows/run-tests.yml](https://github.com/fstrube/device-cmyk/actions/workflows/run-tests.yml/badge.svg?event=push)](https://github.com/fstrube/device-cmyk/actions/workflows/run-tests.yml)
+[![.github/workflows/run-tests.yml](https://github.com/fstrube/device-cmyk/actions/workflows/run-tests.yml/badge.svg?event=push)](https://github.com/fstrube/device-cmyk/actions/workflows/run-tests.yml) [![NPM Version](https://img.shields.io/npm/v/device-cmyk?label=version)
+](https://npmjs.com/package/device-cmyk)
+
 
 </center>
 
