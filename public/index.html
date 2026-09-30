@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMYK Test</title>
+    <style>
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        .swatch {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            height: 144pt;
+            justify-content: center;
+            text-align: center;
+            width: 144pt;
+        }
+    </style>
+    <style>
+        .test {
+            background-color: device-cmyk(1, 0, 0, 0);
+        }
+
+        .paper {
+            background-color: device-cmyk(0, 0, 0, 0);
+        }
+
+        .cyan {
+            background-color: device-cmyk(1, 0, 0, 0);
+            color: white;
+        }
+
+        .magenta {
+            background-color: device-cmyk(0, 1, 0, 0);
+            color: white;
+        }
+
+        .yellow {
+            background-color: device-cmyk(0, 0, 1, 0);
+        }
+    </style>
+    <style>
+        @import 'style-nested.css';
+    </style>
+    <link rel="stylesheet" href="style-link.css">
+</head>
+<body>
+    <div class="swatch" style="color: white; background-color: device-cmyk(1, 0, 0, 0);">
+        <span>INLINE</span>
+        <span>C: 100%</span>
+    </div>
+    <div class="swatch import">
+        <span>IMPORT</span>
+        <span>Y: 100%</span>
+    </div>
+    <div class="swatch link" style="color: white">
+        <span>LINK</span>
+        <span>M: 100%</span>
+    </div>
+    <div class="swatch" style="background: device-cmyk(0, 0, 1, 0);color: device-cmyk(1, 0, 0, 0.5);">
+        <span>TEXT</span>
+        <span>C: 100%</span>
+        <span>K: 50%</span>
+    </div>
+    <div class="swatch nested" style="color: white">
+        <span>NESTED</span>
+        <span>M: 50%</span>
+        <span>Y: 100%</span>
+        <span>K: 50%</span>
+    </div>
+    <div class="swatch paper">
+        <span>PAPER</span>
+        <span>0%</span>
+    </div>
+    <div class="swatch cyan">
+        <span>CYAN</span>
+        <span>C: 100%</span>
+    </div>
+    <div class="swatch magenta">
+        <span>MAGENTA</span>
+        <span>M: 100%</span>
+    </div>
+    <div class="swatch yellow">
+        <span>YELLOW</span>
+        <span>Y: 100%</span>
+    </div>
+    <div class="swatch black">
+        <span>BLACK</span>
+        <span>K: 100%</span>
+    </div>
+    <div class="swatch red">
+        <span>RED</span>
+        <span>M+Y</span>
+    </div>
+    <div class="swatch green">
+        <span>GREEN</span>
+        <span>C+Y</span>
+    </div>
+    <div class="swatch blue">
+        <span>BLUE</span>
+        <span>C+M+K</span>
+    </div>
+    <div class="swatch cmy">
+        <span>CMY</span>
+        <span>C+M+Y</span>
+    </div>
+    <div class="swatch registration">
+        <span>REGISTRATION</span>
+        <span>100%</span>
+    </div>
+    <div class="swatch k-gray">
+        <span>K GRAY</span>
+        <span>K: 50%</span>
+    </div>
+    <div class="swatch cmy-gray">
+        <span>CMY GRAY</span>
+        <span>50%</span>
+    </div>
+    <div class="swatch uneven">
+        <span>UNEVEN</span>
+        <span>20/40/60/80</span>
+    </div>
+    <div class="swatch alpha">
+        <span>ALPHA</span>
+        <span>C: 100%</span>
+        <span>A: 50%</span>
+    </div>
+    <div class="swatch tight">
+        <span>TIGHT</span>
+        <span>M: 100%</span>
+        <span>Y: 50%</span>
+    </div>
+    <div class="swatch loose">
+        <span>LOOSE</span>
+        <span>M: 25%</span>
+        <span>Y: 75%</span>
+    </div>
+
+
+    <script src="/dist/device-cmyk.polyfill.js"></script>
+    <script>
+        const restoreButton = document.getElementById('restore');
+        const profileSelect = document.getElementById('profile');
+        const toggleButton = document.getElementById('toggle');
+        const graySquare = document.getElementById('gray-square');
+        const initButton = document.getElementById('init');
+        const javascriptSquare = document.getElementById('javascript-square');
+        const setPropertySquare = document.getElementById('set-property-square');
+
+        initButton?.addEventListener('click', async () => {
+            await DeviceCMYK.init();
+        });
+
+        profileSelect?.addEventListener('change', async (event) => {
+            DeviceCMYK.restore();
+
+            if (event.target.value === '') {
+                DeviceCMYK.init();
+                return;
+            }
+
+            const profile = await ICCProfile.open(event.target.value);
+            DeviceCMYK.init(profile);
+        });
+
+        restoreButton?.addEventListener('click', () => {
+            DeviceCMYK.restore();
+        });
+
+        toggleButton?.addEventListener('click', () => {
+            graySquare.setAttribute('style', 'width: 100px; height: 100px; background-color: device-cmyk(0.25, 0.25, 0.25, 0.25);');
+        });
+
+        javascriptSquare?.addEventListener('click', () => {
+            javascriptSquare.style.backgroundColor = 'device-cmyk(0.25, 0.25, 0.25, 0.25)';
+        });
+
+        setPropertySquare?.addEventListener('click', () => {
+            setPropertySquare.style.setProperty('background-color', 'device-cmyk(0.25, 0.25, 0.25, 0.25)');
+        });
+    </script>
+</body>
+</html>

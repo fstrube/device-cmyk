@@ -1,0 +1,55 @@
+on:
+  push:
+    branches:
+      - main
+    paths: &paths
+      - .github/workflows/run-tests.yml
+      - package.json
+      - package-lock.json
+      - server.js
+      - src/**/*
+      - tests/**/*
+  pull_request:
+    paths: *paths
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Cache Node modules
+        uses: actions/cache@v6
+        with:
+          path: ./node_modules
+          key: ${{ hashFiles('./package-lock.json') }}
+
+      - name: Initialize Docker Compose
+        uses: docker/setup-compose-action@v2
+
+      - name: Build Docker images
+        run: docker compose up -d --wait
+
+      - name: Run test suite
+        run: docker compose exec app npm run test:ci
+
+      - name: Generate test report
+        if: always()
+        run: npx xunit-viewer --results=public/tests/junit.xml --output=public/tests/index.html
+
+      - name: Gather test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Test Reports
+          path: |
+            public/tests/
+            test/actual/
+            test/diffs/
+            test/expected/
