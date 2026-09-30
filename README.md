@@ -6,6 +6,12 @@
 
 </center>
 
+<center>
+
+[![.github/workflows/run-tests.yml](https://github.com/fstrube/device-cmyk/actions/workflows/run-tests.yml/badge.svg?event=push)](https://github.com/fstrube/device-cmyk/actions/workflows/run-tests.yml)
+
+</center>
+
 A browser polyfill that makes the CSS `device-cmyk()` color work. Browsers do not support that function yet. This script finds it in your styles and replaces it with `rgba()`.
 
 Without an ICC profile, cyan, magenta, yellow, and black are converted with a simple formula. With a profile, the same colors are converted through that profile so they look closer to print.
