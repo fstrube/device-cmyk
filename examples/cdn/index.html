@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device CMYK CDN Example</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .box {
+            align-items: center;
+            display: flex;
+            height: 100px;
+            justify-content: center;
+            width: 100px;
+        }
+
+        .cyan {
+            background-color: device-cmyk(100% 0% 0% none);
+        }
+        .magenta {
+            background-color: device-cmyk(0% 100% 0% none);
+        }
+        .yellow {
+            background-color: device-cmyk(0% 0% 100% none);
+        }
+        .black {
+            color: white;
+            background-color: device-cmyk(0% 0% 0% 100%);
+        }
+        .white {
+            background-color: device-cmyk(0% 0% 0% none);
+            border: 1px solid device-cmyk(0% 40% 0% none);
+        }
+    </style>
+</head>
+<body>
+    <h1>CDN Example</h1>
+
+    <div class="container">
+        <div class="box cyan">
+            CYAN
+        </div>
+        <div class="box magenta">
+            MAGENTA
+        </div>
+        <div class="box yellow">
+            YELLOW
+        </div>
+        <div class="box black">
+            BLACK
+        </div>
+        <div class="box white">
+            WHITE
+        </div>
+        <div class="box" style="background-color: device-cmyk(80% 20% 40% none);">
+            CUSTOM
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/device-cmyk@latest/dist/device-cmyk.polyfill.js"></script>
+</body>
+</html>

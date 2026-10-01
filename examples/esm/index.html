@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESM Example</title>
+    <meta name="icc-profile" content="./profiles/USSheetfedCoated.icc">
+    <script type="importmap">
+        {
+            "imports": {
+                "device-cmyk": "./node_modules/device-cmyk/dist/index.js"
+            }
+        }
+    </script>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .box {
+            align-items: center;
+            display: flex;
+            height: 100px;
+            justify-content: center;
+            width: 100px;
+        }
+        .cyan {
+            background-color: device-cmyk(100% 0% 0% none);
+        }
+        .magenta {
+            background-color: device-cmyk(0% 100% 0% none);
+        }
+        .yellow {
+            background-color: device-cmyk(0% 0% 100% none);
+        }
+        .black {
+            background-color: device-cmyk(0% 0% 0% 100%);
+            color: white;
+        }
+        .white {
+            background-color: device-cmyk(0% 0% 0% none);
+            border: 1px solid device-cmyk(0% 40% 0% none);
+            color: black;
+        }
+        .custom {
+            background-color: device-cmyk(80% 20% 40% none);
+        }
+    </style>
+</head>
+<body>
+    <h1>ESM Example (w/ Color Profile)</h1>
+    <div class="container">
+        <div class="box cyan"></div>
+        <div class="box magenta"></div>
+        <div class="box yellow"></div>
+        <div class="box black"></div>
+        <div class="box white"></div>
+        <div class="box" style="background-color: device-cmyk(80% 20% 40% none);"></div>
+    </div>
+    <script type="module">
+        import { DeviceCMYK, ICCProfile } from 'device-cmyk';
+
+        (async () => {
+            const data = await fetch(document.querySelector('meta[name="icc-profile"]').getAttribute('content')).then(response => response.arrayBuffer());
+            console.log(data.slice(0, 4));
+            const profile = new ICCProfile(data);
+
+            await DeviceCMYK.init(profile);
+        })();
+    </script>
+</body>
+</html>
