@@ -32,6 +32,7 @@ The script runs when the page loads. It rewrites:
 - `<style>` blocks
 - `<link rel="stylesheet">` files
 - `@import` rules, including nested imports
+- `@color-profile device-cmyk` for ICC profiles
 - `style` attributes
 - later changes made with `element.style` or `setProperty`
 
@@ -96,14 +97,18 @@ DeviceCMYK.transform(0, 0.81, 0.81, 0.3);
 
 ## ICC profiles
 
-Add a meta tag to pick a profile before the script runs:
+Declare a profile with `@color-profile device-cmyk` before the script runs. The last such rule in document order wins.
 
 ```html
-<meta name="x-icc-profile" content="/profiles/USSheetfedCoated.icc">
+<style>
+  @color-profile device-cmyk {
+    src: url("/profiles/USSheetfedCoated.icc");
+  }
+</style>
 <script src="/dist/device-cmyk.polyfill.js"></script>
 ```
 
-Or load one from JavaScript. `init` replaces the current conversion and scans the page again.
+Or load one from JavaScript. An explicit profile passed to `init` replaces the CSS profile. `init` replaces the current conversion and scans the page again.
 
 ```js
 const profile = await ICCProfile.open('/profiles/USSheetfedCoated.icc');
@@ -112,7 +117,7 @@ await DeviceCMYK.restore();
 await DeviceCMYK.init(profile);
 ```
 
-Clear the profile and go back to the simple formula:
+Clear the profile and go back to the simple formula (omit `@color-profile device-cmyk` from the page):
 
 ```js
 await DeviceCMYK.restore();
@@ -135,7 +140,7 @@ Profiles included in this repo:
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `init` | `static init(profile?: ICCProfile): Promise<void>` | Initialize the polyfill. Scans and converts `device-cmyk()` in styles. Optionally apply an ICC profile for print-accurate colors. |
+| `init` | `static init(profile?: ICCProfile): Promise<void>` | Initialize the polyfill. Scans and converts `device-cmyk()` in styles. Uses the last `@color-profile device-cmyk` unless an ICC profile is passed. |
 | `setProfile` | `static setProfile(profile?: ICCProfile): void` | Set or remove the active ICC profile. Pass `undefined` to use simple CMYK conversion. |
 | `restore` | `static restore(): Promise<void>` | Restore original styles and stop watching for changes. Reverts all `device-cmyk()` to their source form. |
 | `disconnect` | `static disconnect(): void` | Stop observing DOM mutations. Does not restore styles. |

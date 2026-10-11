@@ -104,5 +104,37 @@ declare global {
 
       await page.close();
     });
+
+    test('supports @color-profile device-cmyk', async (t) => {
+      const page = await context.newPage();
+
+      page.on('console', (message) => {
+        console.log(message.text());
+      });
+
+      await page.goto('http://localhost:3000');
+
+      await page.waitForFunction(() => window.DeviceCMYK !== undefined, null, { timeout: 500 });
+
+      await page.evaluate(async () => {
+        await DeviceCMYK.restore();
+
+        const style = document.createElement('style');
+        style.textContent = `
+          @color-profile device-cmyk {
+            src: url("/profiles/USSheetfedCoated.icc");
+          }
+        `;
+        document.head.appendChild(style);
+
+        await DeviceCMYK.init();
+      });
+
+      const screenshot = await page.screenshot({ fullPage: true });
+
+      diff(`${browserType.name()}/${t.name}`)(screenshot);
+
+      await page.close();
+    });
   });
 });
