@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
+import { collectDeviceCmykProfileSrc } from '../src/color-profile.ts';
 import DeviceCMYK from '../src/device-cmyk.ts';
 
 const cases = [
@@ -16,4 +17,26 @@ describe('DeviceCMYK.parseCMYK', () => {
       assert.equal(DeviceCMYK.parseCMYK(input), expected);
     });
   }
+});
+
+describe('collectDeviceCmykProfileSrc', () => {
+  const base = 'https://example.com/css/style.css';
+
+  test('uses the last device-cmyk profile and ignores dashed-ident profiles', () => {
+    const src = collectDeviceCmykProfileSrc(`
+      @color-profile --foo {
+        src: url("/profiles/ignored.icc");
+      }
+
+      @color-profile device-cmyk {
+        src: url("/profiles/first.icc");
+      }
+
+      @color-profile device-cmyk {
+        src: url("../profiles/last.icc");
+      }
+    `, base);
+
+    assert.equal(src, 'https://example.com/profiles/last.icc');
+  });
 });

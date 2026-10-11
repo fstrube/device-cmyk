@@ -5,10 +5,12 @@
  * resolveCssUrl('url("https://example.com/style.css")') // "https://example.com/style.css"
  * resolveCssUrl('url(https://example.com/style.css)') // "https://example.com/style.css"
  * resolveCssUrl('https://example.com/style.css') // "https://example.com/style.css"
+ * resolveCssUrl('url("../profiles/a.icc")', 'https://example.com/css/style.css') // "https://example.com/profiles/a.icc"
  * @param value
+ * @param base Optional base URL (stylesheet location or document).
  * @returns The resolved CSS URL.
  */
-export function resolveCssUrl(value: string): string {
+export function resolveCssUrl(value: string, base?: string): string {
     let resolved: string = value;
 
     // url
@@ -28,6 +30,10 @@ export function resolveCssUrl(value: string): string {
 
     if (!resolved) {
         throw new Error(`Invalid CSS URL: ${value}`);
+    }
+
+    if (base) {
+        return new URL(resolved, base).href;
     }
 
     return resolved;

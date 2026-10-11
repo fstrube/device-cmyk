@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESM Example</title>
-    <meta name="icc-profile" content="./profiles/USSheetfedCoated.icc">
     <script type="importmap">
         {
             "imports": {
@@ -13,6 +12,10 @@
         }
     </script>
     <style>
+        @color-profile device-cmyk {
+            src: url("./profiles/USSheetfedCoated.icc");
+        }
+
         .container {
             display: flex;
             flex-direction: row;
@@ -60,14 +63,10 @@
         <div class="box" style="background-color: device-cmyk(80% 20% 40% none);"></div>
     </div>
     <script type="module">
-        import { DeviceCMYK, ICCProfile } from 'device-cmyk';
+        import { DeviceCMYK } from 'device-cmyk';
 
         (async () => {
-            const data = await fetch(document.querySelector('meta[name="icc-profile"]').getAttribute('content')).then(response => response.arrayBuffer());
-            console.log(data.slice(0, 4));
-            const profile = new ICCProfile(data);
-
-            await DeviceCMYK.init(profile);
+            await DeviceCMYK.init();
         })();
     </script>
 </body>

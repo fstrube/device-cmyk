@@ -9,15 +9,8 @@ declare global {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const meta = document.querySelector('meta[name="x-icc-profile"]');
-  let profile: ICCProfile | undefined;
-
-  if (meta) {
-    profile = await ICCProfile.open(meta.getAttribute('content')!);
-  }
-
-  DeviceCMYK.init(profile);
-
   window.DeviceCMYK = DeviceCMYK;
   window.ICCProfile = ICCProfile;
+
+  await DeviceCMYK.init();
 });

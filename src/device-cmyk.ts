@@ -1,4 +1,5 @@
 import { CssRuleAST, CssStylesheetAST, parse, stringify } from '@adobe/css-tools';
+import { deviceCmykProfileSrcFromRule } from './color-profile';
 import { resolveCssUrl } from './utils';
 import ICCProfile from './icc-profile';
 
@@ -13,11 +14,89 @@ export default class DeviceCMYK {
 
   private static profile?: ICCProfile;
 
-  private static async correct() {
+  private static async expandImports(
+    css: CssStylesheetAST,
+    base: string,
+    found: { src?: string },
+  ) {
+    const rules = css.stylesheet.rules;
+
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i];
+
+      if ('import' in rule) {
+        const importUrl = resolveCssUrl(rule.import, base);
+        const importCss = parse(await fetch(importUrl).then((response) => response.text()));
+
+        await this.expandImports(importCss, importUrl, found);
+
+        rules.splice(i, 1, ...importCss.stylesheet.rules);
+        i += importCss.stylesheet.rules.length - 1;
+        continue;
+      }
+
+      const profileSrc = deviceCmykProfileSrcFromRule(rule, base);
+
+      if (profileSrc) {
+        found.src = profileSrc;
+      }
+    }
+  }
+
+  private static rewriteStylesheet(css: CssStylesheetAST) {
+    for (const rule of css.stylesheet.rules) {
+      if ('declarations' in rule) {
+        rule.declarations = rule.declarations.map((declaration: any) => {
+          declaration.value = this.correctDeclarationValue(declaration.value);
+
+          return declaration;
+        });
+      }
+    }
+  }
+
+  private static async correct(explicitProfile?: ICCProfile) {
     const stylesheets = Array.from(document.styleSheets);
+    const prepared: { owner: HTMLStyleElement | HTMLLinkElement; css: CssStylesheetAST }[] = [];
+    const found: { src?: string } = {};
 
     for (const stylesheet of stylesheets) {
-      await this.correctStylesheet(stylesheet);
+      if (stylesheet.ownerNode instanceof HTMLStyleElement) {
+        const css = parse(stylesheet.ownerNode.textContent!);
+
+        this.originalStyles.set(stylesheet.ownerNode, stylesheet.ownerNode.textContent!);
+
+        await this.expandImports(css, document.baseURI, found);
+
+        prepared.push({ owner: stylesheet.ownerNode, css });
+      } else if (stylesheet.ownerNode instanceof HTMLLinkElement) {
+        const href = stylesheet.ownerNode.href;
+        const css = parse(await fetch(href).then((response) => response.text()));
+
+        this.originalStyles.set(stylesheet.ownerNode, href);
+
+        await this.expandImports(css, href, found);
+
+        prepared.push({ owner: stylesheet.ownerNode, css });
+      }
+    }
+
+    if (explicitProfile) {
+      this.setProfile(explicitProfile);
+    } else if (found.src) {
+      this.setProfile(await ICCProfile.open(found.src));
+    } else {
+      this.setProfile(undefined);
+    }
+
+    for (const { owner, css } of prepared) {
+      this.rewriteStylesheet(css);
+
+      if (owner instanceof HTMLStyleElement) {
+        owner.textContent = stringify(css);
+      } else {
+        owner.href = 'data:text/css;base64,' + btoa(stringify(css));
+      }
     }
 
     const elements = Array.from(document.querySelectorAll('*'));
@@ -33,15 +112,9 @@ export default class DeviceCMYK {
   }
 
   static async init(profile?: ICCProfile) {
-    this.restore();
+    await this.restore();
 
-    if (profile) {
-      this.setProfile(profile);
-    } else {
-      this.setProfile(undefined);
-    }
-
-    await this.correct();
+    await this.correct(profile);
 
     this.initObserver();
 
@@ -181,49 +254,6 @@ export default class DeviceCMYK {
 			node.setAttribute('style', corrected);
 
       this.observer?.takeRecords();
-		}
-  }
-
-  private static async correctStylesheet(stylesheet: CSSStyleSheet) {
-    const correct = async (css: CssStylesheetAST) => {
-      const rules = css.stylesheet.rules;
-
-      for (let i = 0; i < rules.length; i++) {
-        const rule = rules[i];
-
-        if ('import' in rule) {
-          const importCss = parse(await fetch(resolveCssUrl(rule.import)).then(response => response.text()));
-
-          await correct(importCss);
-
-          rules.splice(i, 1, ...importCss.stylesheet.rules);
-          i += importCss.stylesheet.rules.length - 1;
-				} else if ('declarations' in rule) {
-					rule.declarations = rule.declarations.map((declaration: any) => {
-					  declaration.value = this.correctDeclarationValue(declaration.value);
-
-						return declaration;
-					});
-				}
-			}
-    };
-
-    if (stylesheet.ownerNode instanceof HTMLStyleElement) {
-			const css = parse(stylesheet.ownerNode.textContent!);
-
-			this.originalStyles.set(stylesheet.ownerNode, stylesheet.ownerNode.textContent!);
-
-			await correct(css);
-
-			stylesheet.ownerNode.textContent = stringify(css);
-    } else if (stylesheet.ownerNode instanceof HTMLLinkElement) {
-			const css = parse(await fetch(stylesheet.ownerNode.href).then(response => response.text()));
-
-			this.originalStyles.set(stylesheet.ownerNode, stylesheet.ownerNode.href);
-
-			await correct(css);
-
-			stylesheet.ownerNode.href = 'data:text/css;base64,' + btoa(stringify(css));
 		}
   }
 
