@@ -11,30 +11,30 @@
  * @returns The resolved CSS URL.
  */
 export function resolveCssUrl(value: string, base?: string): string {
-    let resolved: string = value;
+  let resolved: string = value;
 
-    // url
-    if (resolved.startsWith('url(') && resolved.endsWith(')')) {
-        resolved = resolved.slice(4, -1);
-    }
+  // url
+  if (resolved.startsWith('url(') && resolved.endsWith(')')) {
+    resolved = resolved.slice(4, -1);
+  }
 
-    // string double-quoted
-    if (resolved.startsWith('"') && resolved.endsWith('"')) {
-        resolved = resolved.slice(1, -1);
-    }
+  // string double-quoted
+  if (resolved.startsWith('"') && resolved.endsWith('"')) {
+    resolved = resolved.slice(1, -1);
+  }
 
-    // string single-quoted
-    if (resolved.startsWith("'") && resolved.endsWith("'")) {
-        resolved = resolved.slice(1, -1);
-    }
+  // string single-quoted
+  if (resolved.startsWith("'") && resolved.endsWith("'")) {
+    resolved = resolved.slice(1, -1);
+  }
 
-    if (!resolved) {
-        throw new Error(`Invalid CSS URL: ${value}`);
-    }
+  if (!resolved) {
+    throw new Error(`Invalid CSS URL: ${value}`);
+  }
 
-    if (base) {
-        return new URL(resolved, base).href;
-    }
+  if (base) {
+    return new URL(resolved, base).href;
+  }
 
-    return resolved;
+  return resolved;
 }

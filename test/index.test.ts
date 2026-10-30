@@ -48,7 +48,7 @@ declare global {
 
       await page.goto('http://localhost:3000');
 
-      await page.waitForFunction(() => window.DeviceCMYK !==undefined, null, { timeout: 500 });
+      await page.waitForFunction(() => window.DeviceCMYK !== undefined, null, { timeout: 500 });
 
       const screenshot = await page.screenshot({ fullPage: true });
 

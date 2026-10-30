@@ -14,11 +14,7 @@ export default class DeviceCMYK {
 
   private static profile?: ICCProfile;
 
-  private static async expandImports(
-    css: CssStylesheetAST,
-    base: string,
-    found: { src?: string },
-  ) {
+  private static async expandImports(css: CssStylesheetAST, base: string, found: { src?: string }) {
     const rules = css.stylesheet.rules;
 
     for (let i = 0; i < rules.length; i++) {
@@ -119,8 +115,8 @@ export default class DeviceCMYK {
   }
 
   static disconnect() {
-		this.observer?.disconnect();
-		this.observer = undefined;
+    this.observer?.disconnect();
+    this.observer = undefined;
   }
 
   static async init(profile?: ICCProfile) {
@@ -138,28 +134,31 @@ export default class DeviceCMYK {
       this.observer.disconnect();
     }
 
-		this.observer = new MutationObserver((mutations) => {
-			for (const mutation of mutations) {
-				if (mutation.type === 'attributes') {
+    this.observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'attributes') {
           const element = mutation.target as HTMLElement;
           this.originalStyles.delete(element);
-					this.correctInlineStyles(element);
-				}
-			}
-		});
+          this.correctInlineStyles(element);
+        }
+      }
+    });
 
-		this.observer!.observe(document.body, {
-			attributes: true,
-			attributeFilter: ['style'],
-			subtree: true,
-		});
+    this.observer!.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['style'],
+      subtree: true,
+    });
   }
 
   private static initProxy() {
     if (!this.originalStyleDescriptor) {
       const self = this;
 
-      this.originalStyleDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'style');
+      this.originalStyleDescriptor = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'style'
+      );
 
       Object.defineProperty(HTMLElement.prototype, 'style', {
         configurable: true,
@@ -173,9 +172,10 @@ export default class DeviceCMYK {
               const value = target[prop as any];
 
               if (typeof value === 'function') {
-                return function(...args: any[]) {
+                return function (...args: any[]) {
                   if (prop === 'setProperty') {
-                    let original = self.originalStyles.get(element) || element.getAttribute('style') || '';
+                    let original =
+                      self.originalStyles.get(element) || element.getAttribute('style') || '';
                     const property = (args[0] as string).replace(/([A-Z])/g, '-$1').toLowerCase();
 
                     // Set the original styles of the element
@@ -208,7 +208,8 @@ export default class DeviceCMYK {
               return value;
             },
             set(target, prop, value) {
-              let original = self.originalStyles.get(element) || element.getAttribute('style') || '';
+              let original =
+                self.originalStyles.get(element) || element.getAttribute('style') || '';
               const property = (prop as string).replace(/([A-Z])/g, '-$1').toLowerCase();
 
               // Set the original styles of the element
@@ -237,7 +238,6 @@ export default class DeviceCMYK {
     }
   }
 
-
   private static correctDeclarationValue(value: string) {
     try {
       return value.replace(/device-cmyk\([^)]+\)/, (match) => this.parseCMYK(match));
@@ -248,22 +248,22 @@ export default class DeviceCMYK {
   }
 
   private static correctInlineStyles(node: HTMLElement) {
-		const style = node.getAttribute('style')!;
+    const style = node.getAttribute('style')!;
 
-		if (!style) {
-			return;
-		}
+    if (!style) {
+      return;
+    }
 
     const original = this.originalStyles.get(node) || style;
-		const corrected = this.correctDeclarationValue(style);
+    const corrected = this.correctDeclarationValue(style);
 
-		if (corrected !== style) {
+    if (corrected !== style) {
       this.originalStyles.set(node, original);
 
-			node.setAttribute('style', corrected);
+      node.setAttribute('style', corrected);
 
       this.observer?.takeRecords();
-		}
+    }
   }
 
   static parseCMYK(value: string): string {
@@ -275,21 +275,27 @@ export default class DeviceCMYK {
 
     let [cmyk, alpha = 1] = match.trim().split('/', 2);
 
-    const parts = (match.includes(',') ? cmyk.split(',') : cmyk.split(/\s+/)).filter(part => part.trim() !== '');
+    const parts = (match.includes(',') ? cmyk.split(',') : cmyk.split(/\s+/)).filter(
+      (part) => part.trim() !== ''
+    );
 
     if (parts.length !== 4) {
       throw new Error(`Invalid CMYK value: ${value}`);
     }
 
-    let [c, m, y, k] = parts.map(part => {
+    let [c, m, y, k] = parts.map((part) => {
       if (part.trim() === 'none') {
         return 0;
       }
 
-      return `${part.trim()}`.endsWith('%') ? Number(`${part.trim()}`.slice(0, -1)) / 100 : Number(`${part.trim()}`);
+      return `${part.trim()}`.endsWith('%')
+        ? Number(`${part.trim()}`.slice(0, -1)) / 100
+        : Number(`${part.trim()}`);
     });
 
-    alpha = `${alpha || 1}`.endsWith('%') ? Number(`${alpha || 1}`.slice(0, -1)) / 100 : Number(`${alpha || 1}`);
+    alpha = `${alpha || 1}`.endsWith('%')
+      ? Number(`${alpha || 1}`.slice(0, -1)) / 100
+      : Number(`${alpha || 1}`);
 
     const [r, g, b] = this.transform(c, m, y, k);
 
@@ -303,18 +309,20 @@ export default class DeviceCMYK {
 
     const entries = Array.from(this.originalStyles.entries());
 
-		for (const [node, original] of entries) {
-			if (node instanceof HTMLStyleElement) {
-				node.textContent = original;
-			} else if (node instanceof HTMLLinkElement) {
-        promises.push(new Promise((resolve) => {
-          node.addEventListener('load', () => resolve(true), { once: true });
-        }));
-				node.href = original;
-			} else if (node instanceof HTMLElement) {
-				node.setAttribute('style', original);
-			}
-		}
+    for (const [node, original] of entries) {
+      if (node instanceof HTMLStyleElement) {
+        node.textContent = original;
+      } else if (node instanceof HTMLLinkElement) {
+        promises.push(
+          new Promise((resolve) => {
+            node.addEventListener('load', () => resolve(true), { once: true });
+          })
+        );
+        node.href = original;
+      } else if (node instanceof HTMLElement) {
+        node.setAttribute('style', original);
+      }
+    }
 
     if (this.originalStyleDescriptor) {
       Object.defineProperty(HTMLElement.prototype, 'style', this.originalStyleDescriptor);
@@ -322,7 +330,7 @@ export default class DeviceCMYK {
       this.originalStyleDescriptor = undefined;
     }
 
-		this.originalStyles.clear();
+    this.originalStyles.clear();
 
     this.cache.clear();
 
@@ -335,28 +343,30 @@ export default class DeviceCMYK {
   }
 
   static transform(c: number, m: number, y: number, k: number): number[] {
-		if (this.cache.has([c, m, y, k])) {
-			return this.cache.get([c, m, y, k])!;
-		}
+    if (this.cache.has([c, m, y, k])) {
+      return this.cache.get([c, m, y, k])!;
+    }
 
-    const transform = this.profile ? this.profile.transform : (c: number, m: number, y: number, k: number) => {
-      let r;
-      let g;
-      let b;
+    const transform = this.profile
+      ? this.profile.transform
+      : (c: number, m: number, y: number, k: number) => {
+          let r;
+          let g;
+          let b;
 
-      const clamp = (value: number) => Math.max(0, Math.min(value, 255));
+          const clamp = (value: number) => Math.max(0, Math.min(value, 255));
 
-      r = clamp(Math.round(255 * (1 - c) * (1 - k)));
-      g = clamp(Math.round(255 * (1 - m) * (1 - k)));
-      b = clamp(Math.round(255 * (1 - y) * (1 - k)));
+          r = clamp(Math.round(255 * (1 - c) * (1 - k)));
+          g = clamp(Math.round(255 * (1 - m) * (1 - k)));
+          b = clamp(Math.round(255 * (1 - y) * (1 - k)));
 
-      return [r, g, b];
-    };
+          return [r, g, b];
+        };
 
     const transformed = transform(c, m, y, k);
 
     this.cache.set([c, m, y, k], transformed);
 
     return transformed;
-	}
+  }
 }

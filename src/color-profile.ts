@@ -24,7 +24,7 @@ export function deviceCmykProfileSrcFromRule(rule: CssAtRuleAST, base: string): 
   }
 
   const declaration = rule.rules?.find(
-    (item) => item.type === CssTypes.declaration && item.property === 'src',
+    (item) => item.type === CssTypes.declaration && item.property === 'src'
   );
 
   if (!declaration || declaration.type !== CssTypes.declaration) {
@@ -44,7 +44,10 @@ export function deviceCmykProfileSrcFromRule(rule: CssAtRuleAST, base: string): 
  * Last `@color-profile device-cmyk` `src` in the stylesheet, resolved against `base`.
  * Ignores dashed-ident profiles. Does not follow `@import`.
  */
-export function collectDeviceCmykProfileSrc(css: string | CssStylesheetAST, base: string): string | undefined {
+export function collectDeviceCmykProfileSrc(
+  css: string | CssStylesheetAST,
+  base: string
+): string | undefined {
   const ast = typeof css === 'string' ? parse(css) : css;
   let src: string | undefined;
 

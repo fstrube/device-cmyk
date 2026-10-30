@@ -2,7 +2,7 @@ function base64ToArrayBuffer(b64: string): ArrayBuffer {
   var binary = atob(b64);
   var bytes = new Uint8Array(binary.length);
   for (var i = 0; i < binary.length; i++) {
-	  bytes[i] = binary.charCodeAt(i);
+    bytes[i] = binary.charCodeAt(i);
   }
   return bytes.buffer;
 }
@@ -10,7 +10,7 @@ function base64ToArrayBuffer(b64: string): ArrayBuffer {
 function readAscii(view: DataView, offset: number, length: number): string {
   var chars = [];
   for (var i = 0; i < length; i++) {
-	  chars.push(String.fromCharCode(view.getUint8(offset + i)));
+    chars.push(String.fromCharCode(view.getUint8(offset + i)));
   }
   return chars.join('');
 }
@@ -31,7 +31,10 @@ function sampleCurve(table: Uint16Array, x: number): number {
   return lerp(table[i], table[i + 1], t) / 65535;
 }
 
-function parseMft2(view: DataView, offset: number): {
+function parseMft2(
+  view: DataView,
+  offset: number
+): {
   inputChan: number;
   outputChan: number;
   grid: number;
@@ -49,35 +52,35 @@ function parseMft2(view: DataView, offset: number): {
   var c, i;
 
   for (c = 0; c < inputChan; c++) {
-		var inputTable = new Uint16Array(inputEntries);
-		for (i = 0; i < inputEntries; i++, p += 2) {
-			inputTable[i] = view.getUint16(p);
-		}
-		inputTables.push(inputTable);
+    var inputTable = new Uint16Array(inputEntries);
+    for (i = 0; i < inputEntries; i++, p += 2) {
+      inputTable[i] = view.getUint16(p);
+    }
+    inputTables.push(inputTable);
   }
 
   var clutPoints = Math.pow(grid, inputChan);
   var clut = new Uint16Array(clutPoints * outputChan);
   for (i = 0; i < clut.length; i++, p += 2) {
-	  clut[i] = view.getUint16(p);
+    clut[i] = view.getUint16(p);
   }
 
   var outputTables = [];
   for (c = 0; c < outputChan; c++) {
-		var outputTable = new Uint16Array(outputEntries);
-		for (i = 0; i < outputEntries; i++, p += 2) {
-			outputTable[i] = view.getUint16(p);
-		}
-		outputTables.push(outputTable);
+    var outputTable = new Uint16Array(outputEntries);
+    for (i = 0; i < outputEntries; i++, p += 2) {
+      outputTable[i] = view.getUint16(p);
+    }
+    outputTables.push(outputTable);
   }
 
   return {
-		inputChan: inputChan,
-		outputChan: outputChan,
-		grid: grid,
-		inputTables: inputTables,
-		clut: clut,
-		outputTables: outputTables,
+    inputChan: inputChan,
+    outputChan: outputChan,
+    grid: grid,
+    inputTables: inputTables,
+    clut: clut,
+    outputTables: outputTables,
   };
 }
 
@@ -85,13 +88,13 @@ function findIccTag(view: DataView, signature: string): { offset: number; size: 
   var tagCount = view.getUint32(128);
   var i;
   for (i = 0; i < tagCount; i++) {
-		var entry = 132 + i * 12;
-		if (readAscii(view, entry, 4) === signature) {
-			return {
-			offset: view.getUint32(entry + 4),
-			size: view.getUint32(entry + 8),
-			};
-		}
+    var entry = 132 + i * 12;
+    if (readAscii(view, entry, 4) === signature) {
+      return {
+        offset: view.getUint32(entry + 4),
+        size: view.getUint32(entry + 8),
+      };
+    }
   }
   return null;
 }
@@ -108,31 +111,37 @@ function parseCmykIcc(buffer: ArrayBuffer): {
   var lutOffset = 0;
 
   if (readAscii(view, 0, 4) === 'mft2') {
-		lutOffset = 0;
+    lutOffset = 0;
   } else {
-		if (readAscii(view, 36, 4) !== 'acsp') {
-			throw new Error('Not an ICC profile');
-		}
-		if (readAscii(view, 16, 4) !== 'CMYK') {
-			throw new Error('ICC profile is not CMYK');
-		}
-		var tag = findIccTag(view, 'A2B1') || findIccTag(view, 'A2B0');
-		if (!tag) {
-			throw new Error('ICC profile has no A2B tag');
-		}
-		if (readAscii(view, tag.offset, 4) !== 'mft2') {
-			throw new Error('Unsupported ICC LUT type ' + readAscii(view, tag.offset, 4));
-		}
-		lutOffset = tag.offset;
+    if (readAscii(view, 36, 4) !== 'acsp') {
+      throw new Error('Not an ICC profile');
+    }
+    if (readAscii(view, 16, 4) !== 'CMYK') {
+      throw new Error('ICC profile is not CMYK');
+    }
+    var tag = findIccTag(view, 'A2B1') || findIccTag(view, 'A2B0');
+    if (!tag) {
+      throw new Error('ICC profile has no A2B tag');
+    }
+    if (readAscii(view, tag.offset, 4) !== 'mft2') {
+      throw new Error('Unsupported ICC LUT type ' + readAscii(view, tag.offset, 4));
+    }
+    lutOffset = tag.offset;
   }
 
   return parseMft2(view, lutOffset);
 }
 
-function sampleClut4(lut: {
-  grid: number;
-  clut: Uint16Array;
-}, c: number, m: number, y: number, k: number): number[] {
+function sampleClut4(
+  lut: {
+    grid: number;
+    clut: Uint16Array;
+  },
+  c: number,
+  m: number,
+  y: number,
+  k: number
+): number[] {
   var g = lut.grid;
   var max = g - 1;
   var cf = c * max;
@@ -153,8 +162,8 @@ function sampleClut4(lut: {
   var kt = kf - k0;
 
   function at(ci: number, mi: number, yi: number, ki: number): number[] {
-		var index = (((ci * g + mi) * g + yi) * g + ki) * 3;
-		return [lut.clut[index] / 65535, lut.clut[index + 1] / 65535, lut.clut[index + 2] / 65535];
+    var index = (((ci * g + mi) * g + yi) * g + ki) * 3;
+    return [lut.clut[index] / 65535, lut.clut[index + 1] / 65535, lut.clut[index + 2] / 65535];
   }
 
   var c000 = lerp3(at(c0, m0, y0, k0), at(c0, m0, y0, k1), kt);
@@ -174,16 +183,19 @@ function sampleClut4(lut: {
   return lerp3(lerp3(c00, c01, mt), lerp3(c10, c11, mt), ct);
 }
 
-function pcsLab(values: number[], outputTables: Uint16Array[]): { L: number; a: number; b: number } {
+function pcsLab(
+  values: number[],
+  outputTables: Uint16Array[]
+): { L: number; a: number; b: number } {
   var encoded = [];
   var i;
   for (i = 0; i < 3; i++) {
-		encoded.push(sampleCurve(outputTables[i], values[i]));
+    encoded.push(sampleCurve(outputTables[i], values[i]));
   }
   return {
-		L: (encoded[0] * 65535 * 100) / 65280,
-		a: encoded[1] * 255 - 128,
-		b: encoded[2] * 255 - 128,
+    L: (encoded[0] * 65535 * 100) / 65280,
+    a: encoded[1] * 255 - 128,
+    b: encoded[2] * 255 - 128,
   };
 }
 
@@ -195,14 +207,14 @@ function labToXyzD50(L: number, a: number, b: number): { x: number; y: number; z
   var kappa = 24389 / 27;
 
   function fInv(f: number): number {
-		var f3 = f * f * f;
-		return f3 > eps ? f3 : (116 * f - 16) / kappa;
+    var f3 = f * f * f;
+    return f3 > eps ? f3 : (116 * f - 16) / kappa;
   }
 
   return {
-		x: fInv(fx) * 0.96422,
-		y: (L > kappa * eps ? Math.pow((L + 16) / 116, 3) : L / kappa) * 1.0,
-		z: fInv(fz) * 0.82521,
+    x: fInv(fx) * 0.96422,
+    y: (L > kappa * eps ? Math.pow((L + 16) / 116, 3) : L / kappa) * 1.0,
+    z: fInv(fz) * 0.82521,
   };
 }
 
@@ -216,27 +228,29 @@ function xyzD50ToSrgb(x: number, y: number, z: number): number[] {
   var b = 0.05563007969699366 * xd - 0.20397695888897652 * yd + 1.0569715142428786 * zd;
 
   function compand(channel: number): number {
-		channel = Math.min(1, Math.max(0, channel));
-		return channel <= 0.0031308 ? 12.92 * channel : 1.055 * Math.pow(channel, 1 / 2.4) - 0.055;
+    channel = Math.min(1, Math.max(0, channel));
+    return channel <= 0.0031308 ? 12.92 * channel : 1.055 * Math.pow(channel, 1 / 2.4) - 0.055;
   }
 
   return [compand(r) * 255, compand(g) * 255, compand(b) * 255];
 }
 
-export function createCmykIccTransform(buffer: ArrayBuffer): (c: number, m: number, y: number, k: number) => number[] {
+export function createCmykIccTransform(
+  buffer: ArrayBuffer
+): (c: number, m: number, y: number, k: number) => number[] {
   var lut = parseCmykIcc(buffer);
 
   return function cmykToSrgb(c: number, m: number, y: number, k: number): number[] {
-		var input = [
-			sampleCurve(lut.inputTables[0], c),
-			sampleCurve(lut.inputTables[1], m),
-			sampleCurve(lut.inputTables[2], y),
-			sampleCurve(lut.inputTables[3], k),
-		];
-		var pcs = sampleClut4(lut, input[0], input[1], input[2], input[3]);
-		var lab = pcsLab(pcs, lut.outputTables);
-		var xyz = labToXyzD50(lab.L, lab.a, lab.b);
-		return xyzD50ToSrgb(xyz.x, xyz.y, xyz.z);
+    var input = [
+      sampleCurve(lut.inputTables[0], c),
+      sampleCurve(lut.inputTables[1], m),
+      sampleCurve(lut.inputTables[2], y),
+      sampleCurve(lut.inputTables[3], k),
+    ];
+    var pcs = sampleClut4(lut, input[0], input[1], input[2], input[3]);
+    var lab = pcsLab(pcs, lut.outputTables);
+    var xyz = labToXyzD50(lab.L, lab.a, lab.b);
+    return xyzD50ToSrgb(xyz.x, xyz.y, xyz.z);
   };
 }
 
