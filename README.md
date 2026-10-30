@@ -66,11 +66,11 @@ Then, you can import the library in your scrips like below:
 **EcmaScript Modules**
 
 ```js
-import 'device-cmyk'
+import 'device-cmyk';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await DeviceCMYK.init();
-})
+});
 ```
 
 ## Color syntax
@@ -102,7 +102,7 @@ Declare a profile with `@color-profile device-cmyk` before the script runs. The 
 ```html
 <style>
   @color-profile device-cmyk {
-    src: url("/profiles/USSheetfedCoated.icc");
+    src: url('/profiles/USSheetfedCoated.icc');
   }
 </style>
 <script src="/dist/device-cmyk.polyfill.js"></script>
@@ -138,22 +138,22 @@ Profiles included in this repo:
 
 ### DeviceCMYK
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `init` | `static init(profile?: ICCProfile): Promise<void>` | Initialize the polyfill. Scans and converts `device-cmyk()` in styles. Uses the last `@color-profile device-cmyk` unless an ICC profile is passed. |
-| `setProfile` | `static setProfile(profile?: ICCProfile): void` | Set or remove the active ICC profile. Pass `undefined` to use simple CMYK conversion. |
-| `restore` | `static restore(): Promise<void>` | Restore original styles and stop watching for changes. Reverts all `device-cmyk()` to their source form. |
-| `disconnect` | `static disconnect(): void` | Stop observing DOM mutations. Does not restore styles. |
-| `transform` | `static transform(c: number, m: number, y: number, k: number): number[]` | Convert CMYK values (0–1) to `[R, G, B]` (0–255). Uses current profile or simple formula. |
-| `parseCMYK` | `static parseCMYK(value: string): string` | Parse a CSS `device-cmyk()` string and return `rgba(...)`. |
+| Method       | Signature                                                                | Description                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `init`       | `static init(profile?: ICCProfile): Promise<void>`                       | Initialize the polyfill. Scans and converts `device-cmyk()` in styles. Uses the last `@color-profile device-cmyk` unless an ICC profile is passed. |
+| `setProfile` | `static setProfile(profile?: ICCProfile): void`                          | Set or remove the active ICC profile. Pass `undefined` to use simple CMYK conversion.                                                              |
+| `restore`    | `static restore(): Promise<void>`                                        | Restore original styles and stop watching for changes. Reverts all `device-cmyk()` to their source form.                                           |
+| `disconnect` | `static disconnect(): void`                                              | Stop observing DOM mutations. Does not restore styles.                                                                                             |
+| `transform`  | `static transform(c: number, m: number, y: number, k: number): number[]` | Convert CMYK values (0–1) to `[R, G, B]` (0–255). Uses current profile or simple formula.                                                          |
+| `parseCMYK`  | `static parseCMYK(value: string): string`                                | Parse a CSS `device-cmyk()` string and return `rgba(...)`.                                                                                         |
 
 ### ICCProfile
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `constructor` | `new ICCProfile(buffer: ArrayBuffer)` | Create a profile from raw ICC file bytes. |
-| `open` | `static open(url: string): Promise<ICCProfile>` | Fetch and parse an ICC profile from a URL. |
-| `transform` | `transform(c: number, m: number, y: number, k: number): number[]` | Convert CMYK to sRGB using this profile's lookup tables. |
+| Method        | Signature                                                         | Description                                              |
+| ------------- | ----------------------------------------------------------------- | -------------------------------------------------------- |
+| `constructor` | `new ICCProfile(buffer: ArrayBuffer)`                             | Create a profile from raw ICC file bytes.                |
+| `open`        | `static open(url: string): Promise<ICCProfile>`                   | Fetch and parse an ICC profile from a URL.               |
+| `transform`   | `transform(c: number, m: number, y: number, k: number): number[]` | Convert CMYK to sRGB using this profile's lookup tables. |
 
 ### Usage Examples
 
@@ -226,17 +226,17 @@ npm run build -- -- --watch
 
 ### npm Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `build` | Compile TypeScript and bundle the polyfill. Runs type check, tsup, and esbuild. |
+| Script           | Purpose                                                                           |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `build`          | Compile TypeScript and bundle the polyfill. Runs type check, tsup, and esbuild.   |
 | `build:polyfill` | Bundle only the browser polyfill (`dist/device-cmyk.polyfill.js`) with sourcemap. |
-| `start` | Start the dev server on port 3000. Serves `public/` with hot-reload via tsx. |
-| `test` | Run all tests locally (parsing, screenshots, no CI reporters). |
-| `test:ci` | Run full CI suite: main tests + npm link test + tarball test. Outputs JUnit XML. |
-| `test:main` | Run visual tests and unit tests with JUnit reporter. |
-| `test:link` | Test via `npm link` (development symlink). Pre/post hooks handle setup. |
-| `test:package` | Test via `npm pack` (tarball install). Pre/post hooks handle setup. |
-| `test:snapshot` | Update screenshot baselines. Use only when visuals intentionally change. |
+| `start`          | Start the dev server on port 3000. Serves `public/` with hot-reload via tsx.      |
+| `test`           | Run all tests locally (parsing, screenshots, no CI reporters).                    |
+| `test:ci`        | Run full CI suite: main tests + npm link test + tarball test. Outputs JUnit XML.  |
+| `test:main`      | Run visual tests and unit tests with JUnit reporter.                              |
+| `test:link`      | Test via `npm link` (development symlink). Pre/post hooks handle setup.           |
+| `test:package`   | Test via `npm pack` (tarball install). Pre/post hooks handle setup.               |
+| `test:snapshot`  | Update screenshot baselines. Use only when visuals intentionally change.          |
 
 ## Tests
 

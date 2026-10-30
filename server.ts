@@ -9,36 +9,36 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // Catch docker-compose down signal
 process.on('SIGTERM', () => {
-    console.log('Server is shutting down');
-    server.close(() => {
-        console.log('Server has been shut down');
-        process.exit(0);
-    });
+  console.log('Server is shutting down');
+  server.close(() => {
+    console.log('Server has been shut down');
+    process.exit(0);
+  });
 });
 
 const server = http.createServer((req, res) => {
-    try {
-        const url = req.url?.endsWith('/') ? req.url + 'index.html' : req.url;
-        const filePath = path.join(__dirname, 'public', url?.startsWith('/') ? url.slice(1) : url!);
-        const content = fs.readFileSync(filePath);
+  try {
+    const url = req.url?.endsWith('/') ? req.url + 'index.html' : req.url;
+    const filePath = path.join(__dirname, 'public', url?.startsWith('/') ? url.slice(1) : url!);
+    const content = fs.readFileSync(filePath);
 
-        if (filePath.endsWith('.icc')) {
-            res.writeHead(200, { 'Content-Type': 'application/octet-stream' });
-            res.end(content);
-        } else if (fs.existsSync(filePath)) {
-            res.writeHead(200, { 'Content-Type': mime.getType(filePath) ?? 'text/html' });
-            res.end(content);
-        } else {
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('Not found');
-        }
-    } catch (error) {
-        console.error(error);
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal server error');
+    if (filePath.endsWith('.icc')) {
+      res.writeHead(200, { 'Content-Type': 'application/octet-stream' });
+      res.end(content);
+    } else if (fs.existsSync(filePath)) {
+      res.writeHead(200, { 'Content-Type': mime.getType(filePath) ?? 'text/html' });
+      res.end(content);
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not found');
     }
+  } catch (error) {
+    console.error(error);
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Internal server error');
+  }
 });
 
 server.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });
