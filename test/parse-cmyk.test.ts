@@ -23,7 +23,8 @@ describe('collectDeviceCmykProfileSrc', () => {
   const base = 'https://example.com/css/style.css';
 
   test('uses the last device-cmyk profile and ignores dashed-ident profiles', () => {
-    const src = collectDeviceCmykProfileSrc(`
+    const src = collectDeviceCmykProfileSrc(
+      `
       @color-profile --foo {
         src: url("/profiles/ignored.icc");
       }
@@ -35,7 +36,9 @@ describe('collectDeviceCmykProfileSrc', () => {
       @color-profile device-cmyk {
         src: url("../profiles/last.icc");
       }
-    `, base);
+    `,
+      base
+    );
 
     assert.equal(src, 'https://example.com/profiles/last.icc');
   });

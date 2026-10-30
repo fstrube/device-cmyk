@@ -14,5 +14,5 @@ test('DeviceCMYK should have a method to convert RGB to CMYK', () => {
 });
 
 test('should expose package.json', () => {
-    assert('version' in packageJson, 'package.json should expose the version');
+  assert('version' in packageJson, 'package.json should expose the version');
 });
