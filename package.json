@@ -1,6 +1,6 @@
 {
   "name": "device-cmyk",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4-alpha",
   "description": "Runtime polyfill for the CSS device-cmyk() color function.",
   "repository": {
     "type": "git",
