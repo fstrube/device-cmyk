@@ -22,8 +22,12 @@
         }
     </style>
     <style>
+        :root {
+            --cyan: device-cmyk(1, 0, 0, 0);
+        }
+
         .test {
-            background-color: device-cmyk(1, 0, 0, 0);
+            background-color: var(--cyan);
         }
 
         .paper {

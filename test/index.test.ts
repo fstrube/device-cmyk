@@ -136,5 +136,58 @@ declare global {
 
       await page.close();
     });
+
+    test('supports nested at-rules', async (t) => {
+      const page = await context.newPage();
+
+      page.on('console', (message) => {
+        console.log(message.text());
+      });
+
+      await page.goto('http://localhost:3000');
+
+      await page.waitForFunction(() => window.DeviceCMYK !== undefined, null, {
+        timeout: 500,
+      });
+
+      await page.evaluate(async () => {
+        await DeviceCMYK.restore();
+
+        const style = document.createElement('style');
+        style.textContent = `
+          @media screen {
+            body {
+              background-color: device-cmyk(1 0.5 0 0.5);
+            }
+
+            @media (max-width: 200px) {
+              body {
+                background-color: device-cmyk(0 1 0 0);
+              }
+            }
+          }
+
+          @page {
+              background-color: device-cmyk(0 0 0 1);
+
+              @top-center {
+                  background-color: device-cmyk(0 1 0 0);
+                  content: 'HEADER';
+                  display: inline-block;
+              }
+          }
+        `;
+
+        document.head.appendChild(style);
+
+        await DeviceCMYK.init();
+      });
+
+      const screenshot = await page.screenshot({ fullPage: true });
+
+      diff(`${browserType.name()}/${t.name}`)(screenshot);
+
+      await page.close();
+    });
   });
 });
