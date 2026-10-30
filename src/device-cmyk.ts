@@ -44,15 +44,25 @@ export default class DeviceCMYK {
   }
 
   private static rewriteStylesheet(css: CssStylesheetAST) {
-    for (const rule of css.stylesheet.rules) {
-      if ('declarations' in rule) {
-        rule.declarations = rule.declarations.map((declaration: any) => {
-          declaration.value = this.correctDeclarationValue(declaration.value);
+    const traverse = (rulesOrDeclarations: any[]) => {
+      return rulesOrDeclarations?.map((ruleOrDeclaration: any) => {
+        if ('rules' in ruleOrDeclaration) {
+          ruleOrDeclaration.rules = traverse(ruleOrDeclaration.rules);
+        }
 
-          return declaration;
-        });
-      }
-    }
+        if ('declarations' in ruleOrDeclaration) {
+          ruleOrDeclaration.declarations = traverse(ruleOrDeclaration.declarations);
+        }
+
+        if (ruleOrDeclaration.type === 'declaration') {
+          ruleOrDeclaration.value = this.correctDeclarationValue(ruleOrDeclaration.value);
+        }
+
+        return ruleOrDeclaration;
+      });
+    };
+
+    css.stylesheet.rules = traverse(css.stylesheet.rules);
   }
 
   private static async correct(explicitProfile?: ICCProfile) {
@@ -94,8 +104,10 @@ export default class DeviceCMYK {
 
       if (owner instanceof HTMLStyleElement) {
         owner.textContent = stringify(css);
-      } else {
+      } else if (owner instanceof HTMLLinkElement) {
         owner.href = 'data:text/css;base64,' + btoa(stringify(css));
+      } else {
+        console.warn('Unknown owner type:', owner);
       }
     }
 
