@@ -141,7 +141,6 @@ export default class DeviceCMYK {
 		this.observer = new MutationObserver((mutations) => {
 			for (const mutation of mutations) {
 				if (mutation.type === 'attributes') {
-          console.log('observed', mutation.target);
           const element = mutation.target as HTMLElement;
           this.originalStyles.delete(element);
 					this.correctInlineStyles(element);
@@ -209,9 +208,7 @@ export default class DeviceCMYK {
               return value;
             },
             set(target, prop, value) {
-              console.log('set');
               let original = self.originalStyles.get(element) || element.getAttribute('style') || '';
-              console.log('original', original, element);
               const property = (prop as string).replace(/([A-Z])/g, '-$1').toLowerCase();
 
               // Set the original styles of the element
